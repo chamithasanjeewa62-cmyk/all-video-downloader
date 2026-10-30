@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b18">
+<title>ALL VIDEO DOWNLOADER</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080b18;
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    width: 350px;
+    height: 350px;
+    background: #713bff;
+    filter: blur(150px);
+    opacity: .25;
+    top: -100px;
+    left: -100px;
+    z-index: -1;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    width: 350px;
+    height: 350px;
+    background: #00d9ff;
+    filter: blur(150px);
+    opacity: .18;
+    bottom: -100px;
+    right: -100px;
+    z-index: -1;
+}
+
+.bubbles span {
+    position: fixed;
+    bottom: -100px;
+    width: 15px;
+    height: 15px;
+    background: rgba(100, 160, 255, .18);
+    border-radius: 50%;
+    animation: float 15s linear infinite;
+    z-index: -1;
+}
+
+.bubbles span:nth-child(1) { left: 10%; animation-duration: 12s; }
+.bubbles span:nth-child(2) { left: 25%; animation-duration: 18s; width: 25px; height: 25px; }
+.bubbles span:nth-child(3) { left: 45%; animation-duration: 14s; }
+.bubbles span:nth-child(4) { left: 65%; animation-duration: 20s; width: 30px; height: 30px; }
+.bubbles span:nth-child(5) { left: 85%; animation-duration: 16s; }
+
+@keyframes float {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+}
+
+header {
+    width: 100%;
+    padding: 22px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(15px);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 19px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg,#793cff,#00cfff);
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    font-size: 23px;
+    box-shadow: 0 0 25px #713bff66;
+}
+
+.logo span {
+    color: #8d6aff;
+}
+
+.menu {
+    color: #aaa;
+    font-size: 13px;
+}
+
+.hero {
+    text-align: center;
+    padding: 90px 20px 50px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 9px 18px;
+    border: 1px solid #704aff66;
+    background: #704aff18;
+    border-radius: 30px;
+    color: #a991ff;
+    font-size: 12px;
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: clamp(35px, 7vw, 65px);
+    line-height: 1.15;
+    font-weight: 800;
+}
+
+.hero h1 span {
+    background: linear-gradient(90deg,#8b5cff,#00d9ff);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.hero p {
+    max-width: 600px;
+    margin: 22px auto;
+    color: #9ba4bb;
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+.download-box {
+    max-width: 700px;
+    margin: 35px auto;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 50px #0005;
+}
+
+.download-box input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    padding: 15px;
+    font-size: 14px;
+}
+
+.download-box input::placeholder {
+    color: #777f96;
+}
+
+.download-box button {
+    border: none;
+    padding: 0 25px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    background: linear-gradient(135deg,#793cff,#00bfff);
+    cursor: pointer;
+    transition: .3s;
+}
+
+.download-box button:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 25px #754cff88;
+}
+
+#message {
+    color: #ff8585;
+    font-size: 13px;
+    min-height: 20px;
+}
+
+.platforms {
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.section-subtitle {
+    color: #8992a9;
+    font-size: 14px;
+    margin-bottom: 35px;
+}
+
+.platform-grid {
+    max-width: 850px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(130px,1fr));
+    gap: 15px;
+}
+
+.platform {
+    padding: 25px 10px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    transition: .3s;
+}
+
+.platform:hover {
+    transform: translateY(-7px);
+    border-color: #805aff;
+    background: rgba(112,74,255,.12);
+}
+
+.platform .icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.platform h3 {
+    font-size: 14px;
+}
+
+.features {
+    padding: 65px 20px;
+    text-align: center;
+}
+
+.feature-grid {
+    max-width: 950px;
+    margin: 35px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 20px;
+}
+
+.feature {
+    padding: 30px 22px;
+    text-align: left;
+    border-radius: 20px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.08);
+    transition: .3s;
+}
+
+.feature:hover {
+    transform: translateY(-5px);
+    border-color: #7953ff;
+}
+
+.feature .emoji {
+    font-size: 30px;
+    margin-bottom: 18px;
+}
+
+.feature h3 {
+    margin-bottom: 12px;
+}
+
+.feature p {
+    color: #929bb0;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.steps {
+    padding: 60px 20px 90px;
+    text-align: center;
+}
+
+.step-list {
+    max-width: 750px;
+    margin: 35px auto;
+    display: grid;
+    gap: 15px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+.number {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#793cff,#00bfff);
+    font-weight: bold;
+}
+
+.step p {
+    color: #929bb0;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+footer {
+    padding: 30px 20px;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,.08);
+    color: #788198;
+    font-size: 12px;
+}
+
+footer strong {
+    color: #9b7cff;
+}
+
+@media(max-width:600px) {
+    header {
+        padding: 18px 5%;
+    }
+
+    .logo {
+        font-size: 15px;
+    }
+
+    .menu {
+        font-size: 11px;
+    }
+
+    .hero {
+        padding-top: 65px;
+    }
+
+    .download-box {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .download-box input {
+        width: 100%;
+    }
+
+    .download-box button {
+        padding: 16px;
+    }
+
+    .platform-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bubbles">
+    <span></span><span></span><span></span>
+    <span></span><span></span>
+</div>
+
+<header>
+    <div class="logo">
+        <div class="logo-icon">↓</div>
+        ALL VIDEO <span>DOWNLOADER</span>
+    </div>
+    <div class="menu">FAST • SIMPLE • FREE</div>
+</header>
+
+<section class="hero">
+
+    <div class="badge">✦ YOUR ALL-IN-ONE DOWNLOADER</div>
+
+    <h1>
+        Download Videos<br>
+        <span>Without Limits.</span>
+    </h1>
+
+    <p>
+        Your all-in-one video downloader experience.
+        Paste your video link and get started with your favorite platforms.
+    </p>
+
+    <div class="download-box">
+        <input
+            type="url"
+            id="videoUrl"
+            placeholder="Paste your video URL here..."
+        >
+        <button onclick="downloadVideo()">↓ DOWNLOAD</button>
+    </div>
+
+    <div id="message"></div>
+
+</section>
+
+<section class="platforms">
+
+    <h2 class="section-title">Supported Platforms</h2>
+    <p class="section-subtitle">
+        Your favorite social media platforms in one place.
+    </p>
+
+    <div class="platform-grid">
+
+        <div class="platform">
+            <div class="icon">▶️</div>
+            <h3>YouTube</h3>
+        </div>
+
+        <div class="platform">
+            <div class="icon">📸</div>
+            <h3>Instagram</h3>
+        </div>
+
+        <div class="platform">
+            <div class="icon">🎵</div>
+            <h3>TikTok</h3>
+        </div>
+
+        <div class="platform">
+            <div class="icon">📘</div>
+            <h3>Facebook</h3>
+        </div>
+
+        <div class="platform">
+            <div class="icon">𝕏</div>
+            <h3>X / Twitter</h3>
+        </div>
+
+        <div class="platform">
+            <div class="icon">👽</div>
+            <h3>Reddit</h3>
+        </div>
+
+        <div class="platform">
+            <div class="icon">📌</div>
+            <h3>Pinterest</h3>
+        </div>
+
+        <div class="platform">
+            <div class="icon">▶</div>
+            <h3>More Platforms</h3>
+        </div>
+
+    </div>
+</section>
+
+<section class="features">
+
+    <h2 class="section-title">Why Choose Us?</h2>
+    <p class="section-subtitle">
+        Everything you need in one simple platform.
+    </p>
+
+    <div class="feature-grid">
+
+        <div class="feature">
+            <div class="emoji">⚡</div>
+            <h3>Fast Experience</h3>
+            <p>Enjoy a simple and smooth interface designed for a fast experience.</p>
+        </div>
+
+        <div class="feature">
+            <div class="emoji">🌐</div>
+            <h3>Multiple Platforms</h3>
+            <p>One place for links from multiple popular social media platforms.</p>
+        </div>
+
+        <div class="feature">
+            <div class="emoji">📱</div>
+            <h3>Mobile Friendly</h3>
+            <p>Beautiful responsive design for phones, tablets and computers.</p>
+        </div>
+
+        <div class="feature">
+            <div class="emoji">🔒</div>
+            <h3>Simple & Secure</h3>
+            <p>No account required to use this website interface.</p>
+        </div>
+
+        <div class="feature">
+            <div class="emoji">🎨</div>
+            <h3>Premium Design</h3>
+            <p>Modern dark interface with beautiful gradients and animations.</p>
+        </div>
+
+        <div class="feature">
+            <div class="emoji">🚀</div>
+            <h3>Easy To Use</h3>
+            <p>Simply paste a video link and continue with the available service.</p>
+        </div>
+
+    </div>
+</section>
+
+<section class="steps">
+
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">Three simple steps to get started.</p>
+
+    <div class="step-list">
+
+        <div class="step">
+            <div class="number">01</div>
+            <div>
+                <h3>Copy Video Link</h3>
+                <p>Copy the link of a video you are allowed to download.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="number">02</div>
+            <div>
+                <h3>Paste Your Link</h3>
+                <p>Paste your video URL into the download box.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="number">03</div>
+            <div>
+                <h3>Connect Downloader</h3>
+                <p>A compatible download API or backend is required to process the video.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 <strong>ALL VIDEO DOWNLOADER</strong>. All rights reserved.</p>
+    <p style="margin-top:10px;">Made with ❤️</p>
+</footer>
+
+<script>
+function downloadVideo() {
+
+    const input = document.getElementById("videoUrl");
+    const message = document.getElementById("message");
+
+    const url = input.value.trim();
+
+    if (!url) {
+        message.style.color = "#ff8585";
+        message.innerText = "Please paste a video URL first.";
+        return;
+    }
+
+    try {
+        const parsed = new URL(url);
+
+        if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+            throw new Error("Invalid URL");
+        }
+
+        message.style.color = "#ffca75";
+        message.innerText =
+            "Link received! A compatible video download API must be connected to download videos.";
+
+    } catch (error) {
+        message.style.color = "#ff8585";
+        message.innerText = "Please enter a valid video URL.";
+    }
+}
+</script>
+
+</body>
+</html>
